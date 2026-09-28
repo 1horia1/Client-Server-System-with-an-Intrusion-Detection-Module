@@ -26,11 +26,12 @@ The project implements a secure and monitored client-server environment consisti
 ## ⚙️ Project Architecture
 
 * **Web Module (Flask):** Handles ticketing logic, user sessions, secure/vulnerable routes, and a comprehensive **Audit Log** system accessible exclusively by managers.
-* **IDS Module (NIDS):** 
-  * Automatically builds a dynamic whitelist updated periodically to eliminate false-positive alerts originating from major providers (Google, Amazon, Microsoft, etc.).
-  * Monitors traffic on the dedicated interface and inspects network layers (specifically the `Raw` layer via Regex) for attack signatures.
-  * Implements RAM optimization algorithms (automatic cleanup of state dictionaries and setting `store=0` in Scapy).
-
+* **IDS Module (NIDS - `verify.py`):** 
+  * **Automatic Interface Detection:** Automatically scans available network interfaces via `get_working_ifaces()` to detect and bind to the active **Tailscale** interface (`100.x.x.x` range), with a local loopback fallback.
+  * **Dynamic Whitelist Engine:** Automatically builds and refreshes official IP subnets (Google, Amazon, Microsoft, GitHub, etc.) every 24 hours to eliminate false-positive alerts.
+  * **Low-Memory Packet Sniffing:** Uses Scapy's `sniff()` function on `tcp port 5000` with `store=0` to discard raw packets after inspection, preventing memory leaks during continuous traffic monitoring.
+  * **Multi-Layer Threat Inspection:** Inspects network traffic at the `Raw` layer using compiled regular expressions (`re`) to detect attack signatures such as SQL Injection (`SQLI_SIGNATURES`) and Cross-Site Scripting (`XSS_SIGNATURES`), alongside HTTP header correlation (`Sec-Fetch-Site`, `Origin`, `Referer`) for CSRF detection.
+  * **DoS Rate Limiting & RAM Optimization:** Monitors packet frequencies per source IP within a 3-second sliding window (`DOS_PACKET_THRESHOLD = 30`), backed by an hourly background cleanup mechanism (`ULTIMA_CURATARE_GLOBALA`) to flush inactive state dictionaries from RAM.
 ---
 
 ## 🔒 Simulated Attacks & Detection
@@ -103,5 +104,6 @@ Launch concurrent multi-threaded scripts (e.g., 100 threads) sending repeated se
 
 Log in as a regular user and manually modify the ticket ID in the browser URL (e.g., `/tickets/view/<ID>`) to access and view arbitrary tickets belonging to other users without authorization checks.
 
+---
 ## 📄 License
 This project was developed for educational purposes as part of a bachelor's thesis. Please refer to the LICENSE file for details regarding terms of use.
