@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="glass-panel">
+            <h3 class="mb-4 text-center">🛠️ Modificare Tichet</h3>
+            <p class="text-center text-muted mb-4" style="font-size: 0.9rem;">
+                ID Tichet: <span class="badge bg-dark">{{ ticket['id'][:8] }}...</span>
+            </p>
+
+            <form method="post">
+                <!-- Titlu -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Titlu Subiect</label>
+                    <input name="title" class="form-control" value="{{ ticket['title'] }}" required>
+                </div>
+
+                <!-- Descriere -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Descriere Detaliată</label>
+                    <textarea name="description" class="form-control" rows="5" required>{{ ticket['description'] }}</textarea>
+                </div>
+
+                <div class="row">
+                    <!-- Severitate cu logică de selecție -->
+                    <div class="col-6 mb-3">
+                        <label class="form-label fw-bold">Severitate</label>
+                        <select name="severity" class="form-select">
+                            <option value="low" {% if ticket['severity'] == 'low' %}selected{% endif %}>Low 🟢</option>
+                            <option value="medium" {% if ticket['severity'] == 'medium' %}selected{% endif %}>Medium 🟡</option>
+                            <option value="high" {% if ticket['severity'] == 'high' %}selected{% endif %}>High 🔴</option>
+                        </select>
+                    </div>
+
+                    <!-- Status cu logică de selecție -->
+                    <div class="col-6 mb-3">
+                        <label class="form-label fw-bold">Status</label>
+                        <select name="status" class="form-select">
+                            <option value="open" {% if ticket['status'] == 'open' %}selected{% endif %}>Open</option>
+                            <option value="in_progress" {% if ticket['status'] == 'in_progress' %}selected{% endif %}>In Progress</option>
+                            <option value="closed" {% if ticket['status'] == 'closed' %}selected{% endif %}>Closed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn-custom">Actualizează Datele</button>
+                    <a href="{{ url_for('tickets') }}" class="btn btn-link text-decoration-none text-muted mt-2">
+                        ← Înapoi la Feed
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Efect de hover pe panou pentru extra "premium feel" */
+    .glass-panel {
+        transition: transform 0.3s ease;
+    }
+    .glass-panel:hover {
+        transform: scale(1.01);
+    }
+</style>
+
+{% endblock %}

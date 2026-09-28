@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="glass-panel mt-5">
+            <h2 class="mb-4 text-center">👥 Înregistrare Utilizator</h2>
+            <p class="text-center text-muted mb-4">Alege cu atenție privilegiile noului cont.</p>
+
+            <form method="post">
+                <!-- Email -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Adresă Email</label>
+                    <input type="email" name="email" class="form-control" placeholder="nume@exemplu.com" required>
+                </div>
+
+                <!-- Selectare ROL -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Rol în Sistem</label>
+                    <select name="role" class="form-select" required>
+                        <option value="" disabled selected>Alege un rol...</option>
+                        <option value="user">Utilizator (Acces limitat)</option>
+                        <option value="manager">Manager (Acces total + Admin)</option>
+                    </select>
+                    <div class="form-text">Managerii pot crea alți utilizatori și pot vedea toate tichetele.</div>
+                </div>
+
+                <hr class="my-4">
+
+                <!-- Parolă -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Parolă</label>
+                    <input type="password" name="password" class="form-control" required>
+                </div>
+
+                <!-- Confirmare Parolă -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Confirmă Parola</label>
+                    <input type="password" name="confirm_password" class="form-control" required>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn-custom">Creează Contul</button>
+                    <a href="{{ url_for('profile') }}" class="btn btn-link text-decoration-none text-muted">Anulează</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

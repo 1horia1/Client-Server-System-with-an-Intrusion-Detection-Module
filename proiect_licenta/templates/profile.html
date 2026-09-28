@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="glass-panel mt-5">
+            <h2 class="mb-4 text-center">👤 Profil Utilizator</h2>
+            
+            <p class="lead text-center">Abonat: <strong class="text-primary">{{ user["email"] }}</strong></p>
+
+            <h4 class="mt-5 mb-3">Istoric Activitate Cont</h4>
+            <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle bg-white rounded-3 shadow-sm">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Rol</th>
+                            <th>Logări Eșuate</th>
+                            <th>Ultima Încercare</th>
+                            <th>Creat la</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge bg-secondary text-uppercase">{{ user["role"] }}</span></td>
+                            <td class="fw-bold text-danger">{{ user["failed_logins"] }}</td>
+                            <td><small>{{ user["last_login_attempt"] }}</small></td>
+                            <td><small>{{ user["created_at"] }}</small></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="text-center mt-5">
+                <a href="{{ url_for('tickets') }}" class="btn-custom">Gestionează Tichete Public</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

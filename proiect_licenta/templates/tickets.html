@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row">
+    <!-- COLOANA DIN STÂNGA: FORMULAR CREARE TICHET -->
+    <div class="col-md-4">
+        <div class="glass-panel">
+            <h4 class="mb-4 text-center">📣 Raportează o Problemă</h4>
+            <!-- Specificăm clar action către ruta 'tickets' pentru a evita erorile la căutare -->
+            <form action="{{ url_for('tickets') }}" method="post">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Titlu Subiect</label>
+                    <input name="title" class="form-control" placeholder="Ex: Eroare sistem logare" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Descriere Detaliată</label>
+                    <textarea name="description" class="form-control" rows="3" required></textarea>
+                </div>
+
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <label class="form-label fw-bold">Severitate</label>
+                        <select name="severity" class="form-select">
+                            <option value="low">Low 🟢</option>
+                            <option value="medium">Medium 🟡</option>
+                            <option value="high">High 🔴</option>
+                        </select>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label class="form-label fw-bold">Status</label>
+                        <select name="status" class="form-select">
+                            <option value="open">Open</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-custom w-100 mt-2">Trimite în Feed Public</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- COLOANA DIN DREAPTA: FEED TICHETE + SEARCH -->
+    <div class="col-md-8">
+        <div class="glass-panel">
+            <h4 class="mb-4">🌐 Live Feed Probleme (Honeypot View)</h4>
+            
+            <!-- SECȚIUNEA DE CĂUTARE -->
+            <div class="mb-4">
+                <form action="{{ url_for('tickets_search') }}" method="GET" class="d-flex gap-2">
+                    <input type="text" name="q" class="form-control" 
+                           placeholder="Caută după titlu sau descriere..." 
+                           value="{{ request.args.get('q', '') }}">
+                    <button type="submit" class="btn btn-primary">🔍</button>
+                    {% if request.args.get('q') %}
+                        <a href="{{ url_for('tickets') }}" class="btn btn-outline-secondary">Reset</a>
+                    {% endif %}
+                </form>
+            </div>
+            <!-- FILTRE -->
+            <div class="d-flex gap-2 mb-3">
+                <a href="{{ url_for('tickets') }}" class="btn btn-outline-secondary">Toate</a>
+                <a href="{{ url_for('ticket_filter_by_severity', severity='low') }}" class="btn btn-outline-success">Low</a>
+                <a href="{{ url_for('ticket_filter_by_severity', severity='medium') }}" class="btn btn-outline-warning">Medium</a>
+                <a href="{{ url_for('ticket_filter_by_severity', severity='high') }}" class="btn btn-outline-danger">High</a>
+            </div>
+
+            <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+                <table class="table table-hover align-middle bg-white rounded-3">
+                    <thead class="table-light text-uppercase" style="font-size: 0.8rem;">
+                        <tr>
+                            <th>User (Sursă)</th>
+                            <th>Problemă</th>
+                            <th>Severitate</th>
+                            <th>Status</th>
+                            <th>Edit</th>
+                            <th>View</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in tickets %}
+                        <tr>
+                            <td>
+                                <!-- Afișează email-ul adus prin JOIN în Python -->
+                                <small class="text-muted" style="font-family: monospace;">
+                                    {{ t['email'] if t['email'] else 'Anonim' }}
+                                </small>
+                            </td>
+                            <td>
+                                <strong class="text-dark">{{ t['title'] }}</strong><br/>
+                                <small class="text-muted">{{ t['created_at'][:10] }}</small>
+                            </td>
+                            <td>
+                                {% if t['severity'] == 'high' %}
+                                    <span class="badge bg-danger">HIGH</span>
+                                {% elif t['severity'] == 'medium' %}
+                                    <span class="badge bg-warning text-dark">MED</span>
+                                {% else %}
+                                    <span class="badge bg-success">LOW</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-outline-secondary text-dark border text-uppercase" style="font-size: 0.7rem;">
+                                    {{ t['status'] }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('tickets_edit', ticket_id=t['id']) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('tickets_view', ticket_id=t['id']) }}" class="btn btn-sm btn-outline-secondary">View</a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                Nicio problemă raportată încă în sistem sau nicio potrivire găsită.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

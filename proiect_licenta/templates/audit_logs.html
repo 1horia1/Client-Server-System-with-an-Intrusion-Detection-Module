@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="glass-panel p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="m-0 text-primary"><i class="bi bi-terminal me-2"></i>System Audit Log</h4>
+                    <span class="badge bg-secondary px-3 py-2">Total înregistrări: {{ audit_logs|length }}</span>
+                </div>
+
+                <div class="mb-4">
+                <form action="{{ url_for('audit_logs_search') }}" method="GET" class="d-flex gap-2">
+                    <input type="text" name="q" class="form-control" 
+                           placeholder="Caută după titlu sau descriere..." 
+                           value="{{ request.args.get('q', '') }}">
+                    <button type="submit" class="btn btn-primary">🔍</button>
+                    {% if request.args.get('q') %}
+                        <a href="{{ url_for('audit_logs') }}" class="btn btn-outline-secondary">Reset</a>
+                    {% endif %}
+                </form>
+            </div>
+
+                <div class="table-responsive" style="max-height: 700px; overflow-y: auto;">
+                    <table class="table table-hover align-middle bg-white rounded-3 overflow-hidden">
+                        <thead class="table-dark">
+                            <tr style="font-size: 0.8rem; text-transform: uppercase;">
+                                <th class="ps-3">Timestamp</th>
+                                <th>Actor (User ID)</th>
+                                <th>Eveniment</th>
+                                <th>Resursă Vizată</th>
+                                <th>Mesaj / Descriere</th>
+                                <th class="pe-3">Detalii Tehnice (IP/Agent)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="auditTableBody">
+                            {% for log in audit_logs %}
+                            <tr class="log-row">
+                                <td class="ps-3">
+                                    <small class="text-muted d-block" style="font-family: 'Courier New', monospace; font-size: 0.85rem;">
+                                        {{ log['created_at'] }}
+                                    </small>
+                                    <small class="text-xs text-uppercase opacity-50" style="font-size: 0.6rem;">ID Log: {{ log['id'][:8] }}</small>
+                                </td>
+
+                                <td>
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="bi bi-person me-1"></i>{{ log['user_id'] if log['user_id'] else 'SYSTEM' }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    {% if 'DELETE' in log['action']|upper %}
+                                        <span class="fw-bold text-danger">{{ log['action'] }}</span>
+                                    {% elif 'INSERT' in log['action']|upper or 'CREATE' in log['action']|upper %}
+                                        <span class="fw-bold text-success">{{ log['action'] }}</span>
+                                    {% else %}
+                                        <span class="fw-bold text-primary">{{ log['action'] }}</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <span class="badge bg-info text-dark align-self-start" style="font-size: 0.7rem;">
+                                            {{ log['resource_type']|upper }}
+                                        </span>
+                                        <small class="text-muted" style="font-size: 0.75rem;">ID: {{ log['resource_id'] }}</small>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="text-wrap" style="min-width: 200px; max-width: 400px; font-size: 0.9rem;">
+                                        {{ log['message'] }}
+                                    </div>
+                                </td>
+
+                                <td class="pe-3">
+                                    <div class="d-flex flex-column">
+                                        <span class="text-primary mb-1" style="font-family: monospace; font-size: 0.85rem;">
+                                            <i class="bi bi-globe me-1"></i>{{ log['ip_address'] }}
+                                        </span>
+                                        <small class="text-muted text-truncate" style="max-width: 180px;" title="{{ log['user_agent'] }}">
+                                            <i class="bi bi-browser-edge me-1"></i>{{ log['user_agent'] }}
+                                        </small>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    Nu există înregistrări în sistemul de audit.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('logSearch').addEventListener('keyup', function() {
+        const value = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#auditTableBody tr.log-row');
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(value) ? '' : 'none';
+        });
+    });
+</script>
+
+<style>
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+    .table thead th {
+        border-bottom: none;
+        padding-top: 15px;
+        padding-bottom: 15px;
+    }
+    .text-xs { font-size: 0.7rem; }
+</style>
+{% endblock %}

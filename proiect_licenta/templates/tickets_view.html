@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="glass-panel shadow-lg">
+            <!-- Header Tichet -->
+            <div class="d-flex justify-content-between align-items-start mb-4">
+                <div>
+                    <h2 class="mb-1 text-dark">{{ ticket['title'] }}</h2>
+                    <p class="text-muted mb-0">ID: <code class="small">{{ ticket['id'] }}</code></p>
+                </div>
+                <div class="text-end">
+                    <!-- Badge pentru Severitate -->
+                    {% if ticket['severity'] == 'high' %}
+                        <span class="badge bg-danger p-2 px-3">URGENT (HIGH)</span>
+                    {% elif ticket['severity'] == 'medium' %}
+                        <span class="badge bg-warning text-dark p-2 px-3">MEDIUM</span>
+                    {% else %}
+                        <span class="badge bg-success p-2 px-3">LOW</span>
+                    {% endif %}
+                    
+                    <div class="mt-2 text-uppercase fw-bold" style="font-size: 0.8rem; letter-spacing: 1px;">
+                        Status: <span class="text-primary">{{ ticket['status'] }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="border-secondary opacity-25">
+
+            <!-- Detalii Autor și Timp -->
+            <div class="row mb-4">
+                
+                <div class="col-sm-6">
+                    <p class="mb-1 fw-bold text-muted text-uppercase" style="font-size: 0.75rem;">Data creării:</p>
+                    <p class="text-dark">📅 {{ ticket['created_at'] }}</p>
+                </div>
+            </div>
+
+            <!-- Corpul Tichetului (Descrierea) -->
+            <div class="mb-5">
+                <p class="mb-2 fw-bold text-muted text-uppercase" style="font-size: 0.75rem;">Descrierea Problemei:</p>
+                <div class="p-4 bg-white bg-opacity-50 rounded-3 border">
+                    <p class="mb-0" style="white-space: pre-wrap; line-height: 1.6;">{{ ticket['description'] |safe  }}</p>
+                </div>
+            </div>
+
+            <!-- Acțiuni -->
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <a href="{{ url_for('tickets') }}" class="text-decoration-none text-muted">
+                    ← Înapoi la listă
+                </a>
+            {% if user['role'] == 'manager' %}
+                <div class="d-flex gap-2">
+        <!-- BUTONUL DE ȘTERGERE (Formular pentru POST) -->
+        <form action="{{ url_for('tickets_delete', ticket_id=ticket['id']) }}" method="post" onsubmit="return confirm('Ești sigur că vrei să ștergi definitiv acest tichet?')">
+            <button type="submit" class="btn btn-outline-danger">
+                🗑️ Șterge Tichet
+            </button>
+        </form>
+            {% endif %}
+           
+                
+            
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
